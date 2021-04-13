@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{77fc1bbe-af1d-4304-a04b-3a3e73ad4e2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Systems\Visual">
+      <UniqueIdentifier>{15dc332a-e7ec-4f52-8a6e-4b2383a39dc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity">
+      <UniqueIdentifier>{04a8815c-6b9c-4733-a4b8-1e0ab210c27a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Corporeal">
+      <UniqueIdentifier>{b4239737-e02c-4085-81cc-244ad6736ae0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Corporeal\Animal">
+      <UniqueIdentifier>{900569a6-987c-4db6-91af-968237ec74a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Corporeal\Animal\Bear">
+      <UniqueIdentifier>{3b7f9049-1437-4b2f-8a6c-d64cf14eb1ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Corporeal\Undead">
+      <UniqueIdentifier>{ac391792-eac4-43bb-844d-dde61669b765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Incorporeal">
+      <UniqueIdentifier>{05dc0c22-2464-428f-8347-82c1f2b1a250}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{5343f78c-d72a-4aab-b441-aab595e46de4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Systems\Visual">
+      <UniqueIdentifier>{e5ab8d21-ea7f-40a5-8c79-a8b9d91c602e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity">
+      <UniqueIdentifier>{bdd8e35c-b67b-4f7f-a51d-c40aaac6b00c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity\Corporeal">
+      <UniqueIdentifier>{4609a5d7-ee7e-4ce0-bbf2-1caf1c33f940}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity\Corporeal\Animal">
+      <UniqueIdentifier>{ee14f5ac-3c8f-4fb2-b219-24006e73b875}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity\Corporeal\Animal\Bear">
+      <UniqueIdentifier>{7c9dd005-16ab-43bb-bd77-52af79f17a9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity\Corporeal\Undead">
+      <UniqueIdentifier>{b915654e-4098-43f0-bc05-3ab8c286c51a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity\Incorporeal">
+      <UniqueIdentifier>{4aa96758-252f-4439-8432-f813e3b3a2c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Entity\Corporeal\Animal\Monkey">
+      <UniqueIdentifier>{50dd005d-0bba-4c49-b3a7-fda3592abf72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity\Corporeal\Animal\Panda">
+      <UniqueIdentifier>{9d7d34ef-72f0-4061-8413-3865ca05c876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entity\Corporeal\Undead\Zombie">
+      <UniqueIdentifier>{a3d3b7c4-35e6-484b-807b-c9e0093ae1b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Corporeal\Animal\Monkey">
+      <UniqueIdentifier>{2021cbc0-51da-4d24-a706-0d306848c80c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Corporeal\Animal\Panda">
+      <UniqueIdentifier>{b8e6a0cf-2ff7-41e4-9308-20851e7f4a46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity\Corporeal\Undead\Zombie">
+      <UniqueIdentifier>{e5f1205f-07d1-4081-80b7-11c4d587817b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\auditorysystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cardiovascularsystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physicalbody.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sensorysystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\visualsystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eye.cpp">
+      <Filter>Source Files\Systems\Visual</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entity.cpp">
+      <Filter>Source Files\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="src\corporeal.cpp">
+      <Filter>Source Files\Entity\Corporeal</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animal.cpp">
+      <Filter>Source Files\Entity\Corporeal\Animal</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bear.cpp">
+      <Filter>Source Files\Entity\Corporeal\Animal\Bear</Filter>
+    </ClCompile>
+    <ClCompile Include="src\blackbear.cpp">
+      <Filter>Source Files\Entity\Corporeal\Animal\Bear</Filter>
+    </ClCompile>
+    <ClCompile Include="src\undead.cpp">
+      <Filter>Source Files\Entity\Corporeal\Undead</Filter>
+    </ClCompile>
+    <ClCompile Include="src\incorporeal.cpp">
+      <Filter>Source Files\Entity\Incorporeal</Filter>
+    </ClCompile>
+    <ClCompile Include="src\monkey.cpp">
+      <Filter>Source Files\Entity\Corporeal\Animal\Monkey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\panda.cpp">
+      <Filter>Source Files\Entity\Corporeal\Animal\Panda</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zombie.cpp">
+      <Filter>Source Files\Entity\Corporeal\Undead\Zombie</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\auditorysystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cardiovascularsystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\physicalbody.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\sensorysystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\visualsystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\eye.h">
+      <Filter>Header Files\Systems\Visual</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\entity.h">
+      <Filter>Header Files\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\corporeal.h">
+      <Filter>Header Files\Entity\Corporeal</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\animal.h">
+      <Filter>Header Files\Entity\Corporeal\Animal</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\bear.h">
+      <Filter>Header Files\Entity\Corporeal\Animal\Bear</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\blackbear.h">
+      <Filter>Header Files\Entity\Corporeal\Animal\Bear</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\undead.h">
+      <Filter>Header Files\Entity\Corporeal\Undead</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\incorporeal.h">
+      <Filter>Header Files\Entity\Incorporeal</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\monkey.h">
+      <Filter>Header Files\Entity\Corporeal\Animal\Monkey</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\panda.h">
+      <Filter>Header Files\Entity\Corporeal\Animal\Panda</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\zombie.h">
+      <Filter>Header Files\Entity\Corporeal\Undead\Zombie</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
