@@ -8,7 +8,11 @@ Eye::Eye()
 	m_pCameraUpVectorV = D3DXVECTOR3(0,1,0);
 	m_pCameraLookVectorN = D3DXVECTOR3(0,0,1);
 	m_pCameraLookAtPosition = D3DXVECTOR3(0,0,0);
-	
+	m_nAspectRatio = 0;
+	m_nWindowHeight = 0;
+	m_nWindowWidth = 0;
+	m_pSelfMesh = 0;
+
 	D3DXMatrixIdentity(&m_matView);
 	D3DXMatrixIdentity(&m_matProjection);
 
@@ -234,7 +238,7 @@ VOID Eye::Draw()
 		&(g_pD3DGraphics->GetWorldMatrix() * m_matView * m_matProjection))
 	);
 	D3DXMATRIX worldInverseTranspose;
-	D3DXMatrixInverse(&worldInverseTranspose, 0, &(g_pD3DGraphics->GetWorldMatrix() * m_matView * m_matProjection));
+	D3DXMatrixInverse(&worldInverseTranspose, 0, &g_pD3DGraphics->GetWorldMatrix());
 	D3DXMatrixTranspose(&worldInverseTranspose, &worldInverseTranspose);
 	HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 		g_pD3DGraphics->GetWorldInverseTransposeHandler(),

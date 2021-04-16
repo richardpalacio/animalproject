@@ -4,6 +4,7 @@
 PhysicalBody::PhysicalBody()
 {
 	//mesh vars
+	m_pRoot = 0;
 	m_pMesh = 0;
 	m_pBoundingBoxMesh = 0;
 	m_pAdjacencyBuffer = 0;
@@ -89,6 +90,7 @@ PhysicalBody::~PhysicalBody()
 	{
 		AllocationHierarchy alloc;
 		D3DXFrameDestroy(m_pRoot, &alloc);
+		m_pRoot = 0;
 	}
 }
 
@@ -202,7 +204,7 @@ VOID PhysicalBody::Draw(D3DXMATRIX m_matView, D3DXMATRIX m_matProjection)
 			&(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix * m_matView * m_matProjection))
 		);
 		D3DXMATRIX worldInverseTranspose;
-		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix * m_matView * m_matProjection));
+		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix));
 		D3DXMatrixTranspose(&worldInverseTranspose, &worldInverseTranspose);
 		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 			g_pD3DGraphics->GetWorldInverseTransposeHandler(),
@@ -218,7 +220,7 @@ VOID PhysicalBody::Draw(D3DXMATRIX m_matView, D3DXMATRIX m_matProjection)
 			&(temp * m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix * m_matView * m_matProjection))
 			);
 		worldInverseTranspose;
-		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix * m_matView * m_matProjection));
+		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix));
 		D3DXMatrixTranspose(&worldInverseTranspose, &worldInverseTranspose);
 		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 			g_pD3DGraphics->GetWorldInverseTransposeHandler(),
@@ -275,12 +277,14 @@ VOID PhysicalBody::SetMesh(const TCHAR* meshFileName, const char* textureFileNam
 			D3DXMATERIAL *d3dMaterials = (D3DXMATERIAL*)m_pMaterialBuffer->GetBufferPointer();
 			for (DWORD i = 0; i < m_dwMaterialsCount; i++)
 			{
+				// if we want to replace the texture lets do so here
 				if (textureFileName)
 				{
 					d3dMaterials[i].pTextureFilename = const_cast<char*>(textureFileName);
 				}
 				
-				if (d3dMaterials[i].pTextureFilename != 0)
+				// if there is an attached texture file then lets use it otherwise use material properties
+				if (d3dMaterials[i].pTextureFilename != NULL && strlen(d3dMaterials[i].pTextureFilename) > 0)
 				{
 					D3DXCreateTextureFromFile(g_pD3DGraphics->GetD3DDevice(), tempTextureFileName.c_str(), &m_pMeshTex);
 				}
@@ -311,8 +315,12 @@ VOID PhysicalBody::SetMesh(const TCHAR* meshFileName, const char* textureFileNam
 			| D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, (DWORD*)m_pAdjacencyBuffer->GetBufferPointer(),
 			(DWORD*)m_pAdjacencyBuffer->GetBufferPointer(), 0, 0);
 
+		// clone the mesh into a temp mesh, release old mesh and make temp mesh the original
+		ID3DXMesh* tempMesh;
 		m_pMesh->CloneMesh(D3DXMESH_MANAGED | D3DXMESH_WRITEONLY,
-			elements, g_pD3DGraphics->GetD3DDevice(), &m_pMesh);
+			elements, g_pD3DGraphics->GetD3DDevice(), &tempMesh);
+		m_pMesh->Release();
+		m_pMesh = tempMesh;
 
 		AllocationHierarchy alloc;
 		D3DXLoadMeshHierarchyFromX(meshFileName,
@@ -371,8 +379,10 @@ HRESULT AllocationHierarchy::CreateMeshContainer(LPCSTR Name,
 		materials[i].MatD3D = pMaterials[i].MatD3D;
 		materials[i].MatD3D.Ambient = pMaterials[i].MatD3D.Diffuse;
 
-		//materials[i].pTextureFilename = new CHAR[strlen(pMaterials[i].pTextureFilename) + 1];
-		//memcpy(materials[i].pTextureFilename, pMaterials[i].pTextureFilename, strlen(pMaterials[i].pTextureFilename) + 1);
+		if (pMaterials[i].pTextureFilename != NULL && strlen(pMaterials[i].pTextureFilename) > 0) {
+			materials[i].pTextureFilename = new CHAR[strlen(pMaterials[i].pTextureFilename) + 1];
+			memcpy(materials[i].pTextureFilename, pMaterials[i].pTextureFilename, strlen(pMaterials[i].pTextureFilename) + 1);
+		}
 	}
 
 	// copy effects
@@ -398,7 +408,9 @@ HRESULT AllocationHierarchy::DestroyMeshContainer(LPD3DXMESHCONTAINER pMeshConta
 
 	for (DWORD i = 0; i < pMeshContainerToFree->NumMaterials; ++i)
 	{
-		//delete[] pMeshContainerToFree->pMaterials[i].pTextureFilename;
+		if (pMeshContainerToFree->pMaterials[i].pTextureFilename != NULL && strlen(pMeshContainerToFree->pMaterials[i].pTextureFilename) > 0) {
+			delete[] pMeshContainerToFree->pMaterials[i].pTextureFilename;
+		}
 	}
 
 	delete[] pMeshContainerToFree->pMaterials;
