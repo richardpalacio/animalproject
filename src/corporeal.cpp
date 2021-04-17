@@ -1,7 +1,7 @@
 #include "corporeal.h"
 
 Corporeal::Corporeal(int id)
-	:Entity(id)
+	:Entity(id), sleeping(false)
 {
 }
 

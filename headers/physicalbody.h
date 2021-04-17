@@ -76,6 +76,8 @@ protected:
 
 	D3DMATERIAL9 m_pBoundingBoxMaterial;
 
+	D3DXHANDLE m_hEyeVecW;
+	D3DXHANDLE m_hWorld;
 	D3DXHANDLE m_hMeshCol;
 	D3DXHANDLE m_hMeshTex;
 	

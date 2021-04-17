@@ -25,6 +25,23 @@ PhysicalBody::PhysicalBody()
 	D3DXMatrixIdentity(&m_matRotationMatrix);
 	D3DXMatrixIdentity(&m_matScalingMatrix);
 	
+	// fx get eye vector
+	m_hEyeVecW = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gEyeVecW");
+	if (!m_hEyeVecW)
+	{
+		MessageBox(0, _TEXT("Invalid Parameter name gEyeVecW"), 0, 0);
+		exit(0);
+	}
+
+	// fx get world matrix
+	m_hWorld = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gWorld");
+	if (!m_hWorld)
+	{
+		MessageBox(0, _TEXT("Invalid Parameter name gWorld"), 0, 0);
+		exit(0);
+	}
+
+	// fx get mesh color handle
 	m_hMeshCol = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gMeshColor");
 	if (!m_hMeshCol)
 	{
@@ -32,6 +49,7 @@ PhysicalBody::PhysicalBody()
 		exit(0);
 	}
 	
+	// fx get mesh texture
 	m_hMeshTex = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gMeshTex");
 	if (!m_hMeshTex)
 	{
@@ -161,6 +179,16 @@ VOID PhysicalBody::Update(DOUBLE deltaTime, BOOL currentCamera)
 		D3DXVec3Normalize(&m_vWorldSpaceRightVector, &m_vWorldSpaceRightVector);
 		D3DXVec3Normalize(&m_vWorldSpaceUpVector, &m_vWorldSpaceUpVector);
 		D3DXVec3Normalize(&m_vWorldSpaceLookVector, &m_vWorldSpaceLookVector);
+
+		// update eye vector
+		HR(g_pD3DGraphics->GetFXInterface()->SetValue(m_hEyeVecW,
+			&D3DXVECTOR3(m_vWorldSpacePositionVector.x, 1, m_vWorldSpacePositionVector.z), sizeof(D3DXVECTOR3)) );
+
+		// update world matrix
+		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
+			m_hWorld,
+			&(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix()))
+		);
 	}
 }
 

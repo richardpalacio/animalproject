@@ -210,7 +210,7 @@ VOID Eye::Draw()
 	BOOL isBoundingBoxOld = FALSE;
 	
 	// new FX file booleans
-	BOOL isMesh = TRUE;
+	BOOL isBoundingBox = TRUE;
 
 	// save the old FX values
 	HR(g_pD3DGraphics->GetFXInterface()->GetValue(g_pD3DGraphics->GetChooserHandle(), &isFloorOld, sizeof(BOOL)));
@@ -218,7 +218,7 @@ VOID Eye::Draw()
 	HR(g_pD3DGraphics->GetFXInterface()->GetValue(g_pD3DGraphics->GetIsBoundingBoxHandle(), &isBoundingBoxOld, sizeof(BOOL)));
 
 	// set new FX variables
-	HR(g_pD3DGraphics->GetFXInterface()->SetValue(g_pD3DGraphics->GetIsMeshHandle(), &isMesh, sizeof(BOOL)));
+	HR(g_pD3DGraphics->GetFXInterface()->SetValue(g_pD3DGraphics->GetIsBoundingBoxHandle(), &isBoundingBox, sizeof(BOOL)));
 
 	//draw the uv-axis of the camera to act as a cross hair
 	Vertex vertices[4];

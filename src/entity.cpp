@@ -1,6 +1,8 @@
 #include "entity.h"
 
 Entity::Entity(int id)
+	:cursed(false), m_nEnergy(0), m_nEnergyRegeneration(0), m_nHealth(0), m_nHealthRegeneration(0), m_nLevel(0),
+	m_nMana(0), m_nManaRegeneration(0)
 {
 	sql::mysql::MySQL_Driver *pDriver;
 	sql::Connection *pDBConnection;
