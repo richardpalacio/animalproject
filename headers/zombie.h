@@ -3,7 +3,7 @@
 #include "undead.h"
 
 /*
-idbeastiary 0
+idbeastiary 2
 */
 class Zombie : public Undead
 {

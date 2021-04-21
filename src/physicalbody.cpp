@@ -19,20 +19,14 @@ PhysicalBody::PhysicalBody()
 
 	//mesh texture
 	m_pMeshTex = 0;
-	
-	D3DXMatrixIdentity(&m_matTransformMatrix);
+
+	D3DXMatrixIdentity(&m_matBoundingBoxModelSpaceMatrix);
+	D3DXMatrixIdentity(&m_matModelSpaceMatrix);
+	D3DXMatrixIdentity(&m_matWorldMatrix);
 	D3DXMatrixIdentity(&m_matTranslationMatrix);
 	D3DXMatrixIdentity(&m_matRotationMatrix);
 	D3DXMatrixIdentity(&m_matScalingMatrix);
 	
-	// fx get eye vector
-	m_hEyeVecW = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gEyeVecW");
-	if (!m_hEyeVecW)
-	{
-		MessageBox(0, _TEXT("Invalid Parameter name gEyeVecW"), 0, 0);
-		exit(0);
-	}
-
 	// fx get world matrix
 	m_hWorld = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gWorld");
 	if (!m_hWorld)
@@ -49,11 +43,27 @@ PhysicalBody::PhysicalBody()
 		exit(0);
 	}
 	
-	// fx get mesh texture
+	// fx get mesh texture handle
 	m_hMeshTex = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gMeshTex");
 	if (!m_hMeshTex)
 	{
 		MessageBox(0, _TEXT("Invalid Parameter name gMeshTex"), 0, 0);
+		exit(0);
+	}
+
+	// fx get eye position handle
+	m_hEyeVecW = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gEyeVecW");
+	if (!m_hEyeVecW)
+	{
+		MessageBox(0, _TEXT("Invalid Parameter name gEyeVecW"), 0, 0);
+		exit(0);
+	}
+
+	// fx get light position handle
+	m_hLightVecW = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gLightVecW");
+	if (!m_hLightVecW)
+	{
+		MessageBox(0, _TEXT("Invalid Parameter name gLightVecW"), 0, 0);
 		exit(0);
 	}
 }
@@ -126,15 +136,13 @@ VOID PhysicalBody::Update(DOUBLE deltaTime, BOOL currentCamera)
 
 	if (currentCamera)
 	{
-		D3DXMatrixTranslation(&m_matTransformMatrix, m_vWorldSpacePositionVector.x, m_vWorldSpacePositionVector.y, m_vWorldSpacePositionVector.z);
-
 		if ((g_pD3DGraphics->GetKeyboardState()[DIK_LEFTARROW] & 0x80)
 			&& (g_pD3DGraphics->GetKeyboardState()[DIK_RCONTROL] & 0x80))
 		{
 			//move the camera along its negative x-axis
 			m_vWorldSpacePositionVector += -0.01f * m_vWorldSpaceRightVector;
 		}
-		else if (g_pD3DGraphics->GetKeyboardState()[DIK_LEFTARROW] & 0x80)
+		else if (g_pD3DGraphics->GetKeyboardState()[DIK_LEFTARROW] & 0x80 || g_pD3DGraphics->GetKeyboardState()[DIK_A] & 0x80)
 		{
 			//rotate the right, up and look camera axis vectors
 			D3DXMatrixRotationY(&tempMatrix, -0.001f);
@@ -151,7 +159,7 @@ VOID PhysicalBody::Update(DOUBLE deltaTime, BOOL currentCamera)
 			//move the camera along its positive x-axis
 			m_vWorldSpacePositionVector += 0.01f * m_vWorldSpaceRightVector;
 		}
-		else if (g_pD3DGraphics->GetKeyboardState()[DIK_RIGHTARROW] & 0x80)
+		else if (g_pD3DGraphics->GetKeyboardState()[DIK_RIGHTARROW] & 0x80  || g_pD3DGraphics->GetKeyboardState()[DIK_D] & 0x80)
 		{
 			//rotate the right, up and look camera axis vectors
 			D3DXMatrixRotationY(&tempMatrix, 0.001f);
@@ -162,13 +170,13 @@ VOID PhysicalBody::Update(DOUBLE deltaTime, BOOL currentCamera)
 			D3DXVec3TransformNormal(&m_vWorldSpaceLookVector, &m_vWorldSpaceLookVector, &tempMatrix);
 		}
 
-		if (g_pD3DGraphics->GetKeyboardState()[DIK_UPARROW] & 0x80)
+		if (g_pD3DGraphics->GetKeyboardState()[DIK_UPARROW] & 0x80 || g_pD3DGraphics->GetKeyboardState()[DIK_W] & 0x80)
 		{
 			//400px/1s * 1s/1000ms
 			m_vWorldSpacePositionVector += 0.05f * m_vWorldSpaceLookVector * static_cast<float>(deltaTime);
 		}
 
-		if (g_pD3DGraphics->GetKeyboardState()[DIK_DOWNARROW] & 0x80)
+		if (g_pD3DGraphics->GetKeyboardState()[DIK_DOWNARROW] & 0x80  || g_pD3DGraphics->GetKeyboardState()[DIK_S] & 0x80)
 		{
 			m_vWorldSpacePositionVector += -0.05f * m_vWorldSpaceLookVector * static_cast<float>(deltaTime);
 		}
@@ -180,15 +188,15 @@ VOID PhysicalBody::Update(DOUBLE deltaTime, BOOL currentCamera)
 		D3DXVec3Normalize(&m_vWorldSpaceUpVector, &m_vWorldSpaceUpVector);
 		D3DXVec3Normalize(&m_vWorldSpaceLookVector, &m_vWorldSpaceLookVector);
 
-		// update eye vector
-		HR(g_pD3DGraphics->GetFXInterface()->SetValue(m_hEyeVecW,
-			&D3DXVECTOR3(m_vWorldSpacePositionVector.x, 1, m_vWorldSpacePositionVector.z), sizeof(D3DXVECTOR3)) );
+		// fx set the eye position to the model position
+		D3DXVECTOR3 eyePosition = D3DXVECTOR3(m_vWorldSpacePositionVector.x, 1, m_vWorldSpacePositionVector.z)
+			+ (m_vWorldSpaceLookVector * -5);
+		HR(g_pD3DGraphics->GetFXInterface()->SetValue(m_hEyeVecW, &eyePosition, sizeof(D3DXVECTOR3)));
 
-		// update world matrix
-		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
-			m_hWorld,
-			&(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix()))
-		);
+		D3DXVECTOR3 lightPosition = D3DXVECTOR3(m_vWorldSpacePositionVector.x, 1, m_vWorldSpacePositionVector.z)
+			+ (m_vWorldSpaceLookVector * 1);
+		// fx set the light position to the model position
+		HR(g_pD3DGraphics->GetFXInterface()->SetValue(m_hLightVecW, &lightPosition, sizeof(D3DXVECTOR3)));
 	}
 }
 
@@ -225,14 +233,25 @@ VOID PhysicalBody::Draw(D3DXMATRIX m_matView, D3DXMATRIX m_matProjection)
 		{
 			HR(g_pD3DGraphics->GetFXInterface()->SetValue(m_hMeshCol, &m_d3dcvDiffuseMesh, sizeof(D3DCOLORVALUE)));
 		}
-		
+
 		// draw the mesh
+		// position model in world space
+		D3DXMatrixTranslation(&m_matTranslationMatrix, m_vWorldSpacePositionVector.x, m_vWorldSpacePositionVector.y, m_vWorldSpacePositionVector.z);
+		// concatenate model and world matrices
+		m_matWorldMatrix = m_matModelSpaceMatrix * m_matTranslationMatrix;
+
+		// update world matrix
+		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
+			m_hWorld,
+			&(m_matWorldMatrix))
+		);
+
 		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 			g_pD3DGraphics->GetWorldViewProjectionHandle(),
-			&(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix * m_matView * m_matProjection))
+			&(m_matWorldMatrix * m_matView * m_matProjection))
 		);
 		D3DXMATRIX worldInverseTranspose;
-		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix));
+		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matWorldMatrix));
 		D3DXMatrixTranspose(&worldInverseTranspose, &worldInverseTranspose);
 		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 			g_pD3DGraphics->GetWorldInverseTransposeHandler(),
@@ -242,13 +261,20 @@ VOID PhysicalBody::Draw(D3DXMATRIX m_matView, D3DXMATRIX m_matProjection)
 		HR(m_pMesh->DrawSubset(0));
 		
 		// draw the bounding box
-		D3DXMatrixTranslation(&temp, m_vBoundingSphereCenterPoint.x, m_vBoundingSphereCenterPoint.y, m_vBoundingSphereCenterPoint.z);
+		// position in local space
+		D3DXMatrixTranslation(&m_matTranslationMatrix, m_vBoundingSphereCenterPoint.x, m_vBoundingSphereCenterPoint.y, m_vBoundingSphereCenterPoint.z);
+		m_matBoundingBoxModelSpaceMatrix = m_matTranslationMatrix * m_matModelSpaceMatrix;
+		
+		// position in world space
+		D3DXMatrixTranslation(&m_matTranslationMatrix, m_vWorldSpacePositionVector.x, m_vWorldSpacePositionVector.y, m_vWorldSpacePositionVector.z);
+		// concatenate model and world matrices
+		m_matWorldMatrix = m_matBoundingBoxModelSpaceMatrix * m_matTranslationMatrix;
 		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 			g_pD3DGraphics->GetWorldViewProjectionHandle(),
-			&(temp * m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix * m_matView * m_matProjection))
+			&(m_matWorldMatrix * m_matView * m_matProjection))
 			);
-		worldInverseTranspose;
-		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matModelSpaceMatrix * g_pD3DGraphics->GetWorldMatrix() * m_matTransformMatrix));
+
+		D3DXMatrixInverse(&worldInverseTranspose, 0, &(m_matWorldMatrix));
 		D3DXMatrixTranspose(&worldInverseTranspose, &worldInverseTranspose);
 		HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 			g_pD3DGraphics->GetWorldInverseTransposeHandler(),

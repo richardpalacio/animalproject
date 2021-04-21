@@ -65,7 +65,15 @@ protected:
 	UINT m_nWindowWidth;
 	UINT m_nWindowHeight;
 
-	//view, projection matrices
+	// transform matrices
+	D3DXMATRIX m_matTranslationMatrix;
+
+	// model, world, view, projection matrices
+	D3DXMATRIX m_matWorldMatrix;
 	D3DXMATRIX m_matView;
 	D3DXMATRIX m_matProjection;
+
+	// fx handles
+	D3DXHANDLE m_hWorld; // world handle
+	D3DXHANDLE m_hLightDirection; // light direction
 };

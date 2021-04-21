@@ -8,6 +8,6 @@ idbeastiary 1
 class BlackBear : public Bear
 {
 public:
-	BlackBear();
+	BlackBear(int id = 1);
 	virtual ~BlackBear();
 };

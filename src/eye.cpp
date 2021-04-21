@@ -4,6 +4,7 @@ Eye::Eye()
 {
 	m_nCameraFieldOfViewAngle = D3DX_PI / 4;
 	m_nCameraLensMagnitude = 100;
+	m_pCameraOriginVector = D3DXVECTOR3(0,0,0);
 	m_pCameraRightVectorU = D3DXVECTOR3(1,0,0);
 	m_pCameraUpVectorV = D3DXVECTOR3(0,1,0);
 	m_pCameraLookVectorN = D3DXVECTOR3(0,0,1);
@@ -13,11 +14,28 @@ Eye::Eye()
 	m_nWindowWidth = 0;
 	m_pSelfMesh = 0;
 
+	D3DXMatrixIdentity(&m_matWorldMatrix);
 	D3DXMatrixIdentity(&m_matView);
 	D3DXMatrixIdentity(&m_matProjection);
 
 	m_nZNear = 1.0f;
 	m_nZFar = 1000.0f;
+
+	// fx get world matrix
+	m_hWorld = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gWorld");
+	if (!m_hWorld)
+	{
+		MessageBox(0, _TEXT("Invalid Parameter name gWorld"), 0, 0);
+		exit(0);
+	}
+
+	// fx get light position handle
+	m_hLightDirection = g_pD3DGraphics->GetFXInterface()->GetParameterByName(0, "gLightDirection");
+	if (!m_hLightDirection)
+	{
+		MessageBox(0, _TEXT("Invalid Parameter name gLightDirection"), 0, 0);
+		exit(0);
+	}
 }
 
 Eye::~Eye()
@@ -27,8 +45,8 @@ Eye::~Eye()
 /*
 this is the one of the main features of
 this class, this is where the 2 most
-important pieces of generating the scene come
-from,  view and projection matrices
+important pieces of generating the scene come from
+the view and projection matrices
 setup view, and projection matrices
 */
 VOID Eye::SetupViewProjection()
@@ -150,7 +168,7 @@ VOID Eye::Update(DOUBLE deltaTime)
 		//move the camera along its negative x-axis
 		m_pCameraOriginVector += -0.01f * m_pCameraRightVectorU;
 	}
-	else if (g_pD3DGraphics->GetKeyboardState()[DIK_LEFTARROW] & 0x80)
+	else if (g_pD3DGraphics->GetKeyboardState()[DIK_LEFTARROW] & 0x80 || g_pD3DGraphics->GetKeyboardState()[DIK_A] & 0x80)
 	{
 		//rotate the right, up and look camera axis vectors
 		D3DXMatrixRotationY(&tempMatrix, -0.001f);
@@ -165,7 +183,7 @@ VOID Eye::Update(DOUBLE deltaTime)
 		//move the camera along its positive x-axis
 		m_pCameraOriginVector += 0.01f * m_pCameraRightVectorU;
 	}
-	else if (g_pD3DGraphics->GetKeyboardState()[DIK_RIGHTARROW] & 0x80)
+	else if (g_pD3DGraphics->GetKeyboardState()[DIK_RIGHTARROW] & 0x80 || g_pD3DGraphics->GetKeyboardState()[DIK_D] & 0x80)
 	{
 		//rotate the right, up and look camera axis vectors
 		D3DXMatrixRotationY(&tempMatrix, 0.001f);
@@ -174,33 +192,36 @@ VOID Eye::Update(DOUBLE deltaTime)
 		D3DXVec3TransformNormal(&m_pCameraLookVectorN, &m_pCameraLookVectorN, &tempMatrix);
 	}
 
-	if (g_pD3DGraphics->GetKeyboardState()[DIK_UPARROW] & 0x80)
+	if (g_pD3DGraphics->GetKeyboardState()[DIK_UPARROW] & 0x80 || g_pD3DGraphics->GetKeyboardState()[DIK_W] & 0x80)
 	{
 		//400px/1s * 1s/1000ms
 		m_pCameraOriginVector += 0.05f * m_pCameraLookVectorN * static_cast<float>(deltaTime);
 	}
 
-	if (g_pD3DGraphics->GetKeyboardState()[DIK_DOWNARROW] & 0x80)
+	if (g_pD3DGraphics->GetKeyboardState()[DIK_DOWNARROW] & 0x80 || g_pD3DGraphics->GetKeyboardState()[DIK_S] & 0x80)
 	{
 		m_pCameraOriginVector += -0.05f * m_pCameraLookVectorN * static_cast<float>(deltaTime);
 	}
 
 	//keep the eye at the same height above the ground
-	m_pCameraOriginVector.y = 2;
+	m_pCameraOriginVector.y = 2.05f;
 
 	D3DXVec3Normalize(&m_pCameraRightVectorU, &m_pCameraRightVectorU);
 	D3DXVec3Normalize(&m_pCameraUpVectorV, &m_pCameraUpVectorV);
 	D3DXVec3Normalize(&m_pCameraLookVectorN, &m_pCameraLookVectorN);
 
-	//camera look at vector is 100 units along the n-axis of view space
+	//camera look at vector is X units along the n-axis of view space
 	m_pCameraLookAtPosition = m_pCameraOriginVector + m_pCameraLookVectorN * 3;
 
 	// setup the view/projection matrix
 	SetupViewProjection();
+
+	// fx set the light position to the model position
+	HR(g_pD3DGraphics->GetFXInterface()->SetValue(m_hLightDirection, &m_pCameraLookVectorN, sizeof(D3DXVECTOR3)));
 }
 
 /*
-draw what is seen by the eye
+draw the cross hairs in view space
 */
 VOID Eye::Draw()
 {
@@ -211,6 +232,8 @@ VOID Eye::Draw()
 	
 	// new FX file booleans
 	BOOL isBoundingBox = TRUE;
+	
+	D3DXMATRIX worldInverseTranspose;
 
 	// save the old FX values
 	HR(g_pD3DGraphics->GetFXInterface()->GetValue(g_pD3DGraphics->GetChooserHandle(), &isFloorOld, sizeof(BOOL)));
@@ -231,14 +254,23 @@ VOID Eye::Draw()
 	vertices[1] += (FLOAT)1/8 * m_pCameraRightVectorU;
 	vertices[2] += (FLOAT)-1/8 * m_pCameraUpVectorV;
 	vertices[3] += (FLOAT)1/8 * m_pCameraUpVectorV;
-		
-	// position the the model in local space
+	
+	/*
+	fx set the world, world-view-project, and world-inverse-transpose matrices
+	*/
+	// camera and crosshairs are at world position <0,0,0>
+	D3DXMatrixIdentity(&m_matWorldMatrix);
+	HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
+		m_hWorld,
+		&(m_matWorldMatrix))
+	);
+
 	HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 		g_pD3DGraphics->GetWorldViewProjectionHandle(),
-		&(g_pD3DGraphics->GetWorldMatrix() * m_matView * m_matProjection))
+		&(m_matWorldMatrix * m_matView * m_matProjection))
 	);
-	D3DXMATRIX worldInverseTranspose;
-	D3DXMatrixInverse(&worldInverseTranspose, 0, &g_pD3DGraphics->GetWorldMatrix());
+
+	D3DXMatrixInverse(&worldInverseTranspose, 0, &m_matWorldMatrix);
 	D3DXMatrixTranspose(&worldInverseTranspose, &worldInverseTranspose);
 	HR(g_pD3DGraphics->GetFXInterface()->SetMatrix(
 		g_pD3DGraphics->GetWorldInverseTransposeHandler(),

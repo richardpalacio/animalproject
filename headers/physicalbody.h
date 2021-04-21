@@ -21,17 +21,14 @@ public:
 	VOID SetModelSpaceTransform(const D3DXMATRIX &translation, const D3DXMATRIX &rotation, const D3DXMATRIX &scale);
 	
 	/*
-		set the position of the model in world space
-		however make the position vector reference the bounding sphere
-		center position vector
+	set the position of the model in world space
+	however make the position vector reference the bounding sphere
+	center position vector
 	*/
 	VOID SetPosition(FLOAT x, FLOAT y, FLOAT z){
 		m_vWorldSpacePositionVector.x = x;
 		m_vWorldSpacePositionVector.y = y;
 		m_vWorldSpacePositionVector.z = z;
-
-		D3DXMatrixTranslation(&m_matTranslationMatrix, m_vWorldSpacePositionVector.x, m_vWorldSpacePositionVector.y, m_vWorldSpacePositionVector.z);
-		m_matTransformMatrix = m_matTranslationMatrix * m_matRotationMatrix * m_matScalingMatrix;
 	}
 
 	D3DXVECTOR3 GetPosition(){
@@ -51,11 +48,12 @@ public:
 		}
 	}
 protected:
+	D3DXMATRIX m_matBoundingBoxModelSpaceMatrix;
 	D3DXMATRIX m_matModelSpaceMatrix;
 	D3DXMATRIX m_matTranslationMatrix;
 	D3DXMATRIX m_matScalingMatrix;
 	D3DXMATRIX m_matRotationMatrix;
-	D3DXMATRIX m_matTransformMatrix;
+	D3DXMATRIX m_matWorldMatrix;
 	
 	D3DXVECTOR3 m_vWorldSpacePositionVector;
 	D3DXVECTOR3 m_vWorldSpaceUpVector;
@@ -76,10 +74,11 @@ protected:
 
 	D3DMATERIAL9 m_pBoundingBoxMaterial;
 
-	D3DXHANDLE m_hEyeVecW;
 	D3DXHANDLE m_hWorld;
 	D3DXHANDLE m_hMeshCol;
 	D3DXHANDLE m_hMeshTex;
+	D3DXHANDLE m_hEyeVecW; // eye handle
+	D3DXHANDLE m_hLightVecW; // sun handle
 	
 	D3DCOLORVALUE m_d3dcvDiffuseMesh;
 	
