@@ -58,7 +58,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(MYSQL_CONNECTOR);$(Boost_INCLUDE_DIR);$(ProjectDir)headers;$(DirectX_2010_DIR)Include;$(SolutionDir)headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;HAVE_INT8_T=1;CPPCONN_PUBLIC_FUNC=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
